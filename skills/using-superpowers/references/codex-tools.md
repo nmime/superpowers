@@ -57,3 +57,9 @@ the user to use the App's native controls:
 
 The agent can still run tests, stage files, and output suggested branch
 names, commit messages, and PR descriptions for the user to copy.
+
+## Autonomous skill use in Codex
+
+Codex may load skills natively instead of exposing a Claude-style `Skill` call. Native loading does not weaken the bootstrap rule: before any reply or action, inspect the available skill metadata/content using Codex's current skill mechanism, then follow every applicable skill. If more than one skill applies, chain them in priority order and continue through the resulting workflow phases without asking the user to approve each phase.
+
+When a skill references a tool that is absent or renamed, map by capability from the available tool descriptions (`Read` = file read, `Bash` = shell/exec, `TodoWrite` = `update_plan`, `Task` = spawned agent if multi-agent is enabled). Use read-only discovery first when unsure. Ask the user only if no safe equivalent exists or required multi-agent support is disabled and the skill cannot be completed without it.

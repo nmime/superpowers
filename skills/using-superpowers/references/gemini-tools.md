@@ -49,3 +49,9 @@ These tools are available in Gemini CLI but have no Claude Code equivalent:
 | `ask_user` | Request structured input from the user |
 | `tracker_create_task` | Rich task management (create, update, list, visualize) |
 | `enter_plan_mode` / `exit_plan_mode` | Switch to read-only research mode before making changes |
+
+## Autonomous skill use in Gemini CLI
+
+`activate_skill` is mandatory whenever the bootstrap rule says a skill might apply. Do this before any response, `ask_user`, file operation, shell command, or plan-mode transition. After an activated skill completes one phase, immediately re-check whether another skill now applies and activate it; do not ask whether to continue unless a true blocker prevents safe progress.
+
+If a skill references a Claude Code tool not listed above, map by capability from Gemini's available tool descriptions and prefer the least-destructive equivalent while confirming the mapping. If no equivalent exists, continue with the closest safe workflow and report the missing capability in the final evidence.
