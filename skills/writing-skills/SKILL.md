@@ -19,6 +19,19 @@ You write test cases (pressure scenarios with subagents), watch them fail (basel
 
 **Official guidance:** For Anthropic's official skill authoring best practices, see anthropic-best-practices.md. This document provides additional patterns and guidelines that complement the TDD-focused approach in this skill.
 
+## Operating Mode: Autonomous Skill Author
+
+When asked to create, edit, or verify a skill, own the full loop. Do not ask the user to drip-feed examples, wording, tests, or next steps when you can inspect, draft, test, and iterate yourself.
+
+**Default behavior:**
+1. Inspect nearby skills and supporting files to learn the repository's style, constraints, and examples.
+2. Draft or update the skill within the assigned scope.
+3. Test it with subagents when feasible; otherwise run static checks that prove the expected behavioral guidance is present.
+4. Iterate on failures or gaps until the skill is deployable.
+5. Report evidence: inspected examples, tests/checks run, what changed, and any true blockers.
+
+**Ask the user only for true blockers:** missing objective, unavailable required credentials/tooling, ambiguous target location, or a decision that cannot be inferred from existing examples and constraints. If the next action is obvious, take it.
+
 ## What is a Skill?
 
 A **skill** is a reference guide for proven techniques, patterns, or tools. Skills help future Claude instances find and apply effective approaches.
@@ -453,6 +466,9 @@ Different skill types need different test approaches:
 | "I'm confident it's good" | Overconfidence guarantees issues. Test anyway. |
 | "Academic review is enough" | Reading ≠ using. Test application scenarios. |
 | "No time to test" | Deploying untested skill wastes more time fixing it later. |
+| "User didn't give examples" | Inspect existing skills and examples yourself. Ask only if the objective or target is unknowable. |
+| "Subagents are unavailable" | Run the closest static/semantic checks and record the limitation; don't skip evidence. |
+| "I'll wait for confirmation after drafting" | If checks reveal gaps, iterate autonomously until a true blocker appears. |
 
 **All of these mean: Test before deploying. No exceptions.**
 
@@ -534,20 +550,32 @@ description: use when implementing any feature or bugfix, before writing impleme
 
 Follow the TDD cycle:
 
+### Autonomous Setup
+
+Before writing or testing, gather your own evidence:
+- Read the target skill (if editing), its supporting files, and 2-3 comparable skills in the same repository.
+- Inspect repository guidance (`CLAUDE.md`, README, CI/test scripts) when available and within scope.
+- Preserve existing required references, especially Anthropic's official skill authoring best practices in `anthropic-best-practices.md`.
+- Build a short completion matrix: requirement → target section/file → validation evidence.
+
+Do this autonomously. The user should not have to tell you which examples to inspect or which local checks to run.
+
 ### RED: Write Failing Test (Baseline)
 
-Run pressure scenario with subagent WITHOUT the skill. Document exact behavior:
+Run pressure scenario with subagent WITHOUT the skill when feasible. Document exact behavior:
 - What choices did they make?
 - What rationalizations did they use (verbatim)?
 - Which pressures triggered violations?
 
 This is "watch the test fail" - you must see what agents naturally do before writing the skill.
 
+If subagent testing is unavailable or unsafe, do the closest executable static/semantic check instead and record why subagents were not feasible. Examples: assert required sections exist, grep for prohibited loopholes, validate frontmatter, or run a small script that checks for autonomy/testing/evidence language. Static checks do not replace subagent pressure tests when subagents are available.
+
 ### GREEN: Write Minimal Skill
 
 Write skill that addresses those specific rationalizations. Don't add extra content for hypothetical cases.
 
-Run same scenarios WITH skill. Agent should now comply.
+Run same scenarios WITH skill. Agent should now comply. Iterate immediately on gaps; do not ask the user whether to continue after a failing check.
 
 ### REFACTOR: Close Loopholes
 
@@ -558,6 +586,15 @@ Agent found new rationalization? Add explicit counter. Re-test until bulletproof
 - Pressure types (time, sunk cost, authority, exhaustion)
 - Plugging holes systematically
 - Meta-testing techniques
+
+### Evidence to Capture
+
+Every skill-writing pass should leave enough evidence for a reviewer to trust it:
+- Examples inspected and why they were relevant
+- Baseline failure or closest feasible substitute
+- Subagent pressure-test result, or static-check command and output
+- Frontmatter/markdown sanity result
+- Explicit blockers, if any, instead of open-ended questions
 
 ## Anti-Patterns
 
@@ -582,7 +619,7 @@ helper1, helper2, step3, pattern4
 
 ## STOP: Before Moving to Next Skill
 
-**After writing ANY skill, you MUST STOP and complete the deployment process.**
+**After writing ANY skill, you MUST complete the validation/deployment checklist before starting another skill.**
 
 **Do NOT:**
 - Create multiple skills in batch without testing each
@@ -597,9 +634,16 @@ Deploying untested skills = deploying untested code. It's a violation of quality
 
 **IMPORTANT: Use TodoWrite to create todos for EACH checklist item below.**
 
+**Autonomous Evidence Gathering:**
+- [ ] Inspect current target skill/supporting files before editing
+- [ ] Inspect 2-3 comparable skills or examples in the repository
+- [ ] Identify available local validation commands from README/scripts/CI/tests
+- [ ] Create completion matrix mapping requirements to target files and validation
+- [ ] Ask only for true blockers; otherwise proceed through draft, test, and iteration
+
 **RED Phase - Write Failing Test:**
 - [ ] Create pressure scenarios (3+ combined pressures for discipline skills)
-- [ ] Run scenarios WITHOUT skill - document baseline behavior verbatim
+- [ ] Run scenarios WITHOUT skill - document baseline behavior verbatim, or document why subagent testing is infeasible and run closest static/semantic substitute
 - [ ] Identify patterns in rationalizations/failures
 
 **GREEN Phase - Write Minimal Skill:**
@@ -610,9 +654,10 @@ Deploying untested skills = deploying untested code. It's a violation of quality
 - [ ] Keywords throughout for search (errors, symptoms, tools)
 - [ ] Clear overview with core principle
 - [ ] Address specific baseline failures identified in RED
+- [ ] Include autonomous execution guidance where the skill requires agents to inspect, decide, test, and iterate without user micromanagement
 - [ ] Code inline OR link to separate file
 - [ ] One excellent example (not multi-language)
-- [ ] Run scenarios WITH skill - verify agents now comply
+- [ ] Run scenarios WITH skill - verify agents now comply, or run documented static/semantic substitute
 
 **REFACTOR Phase - Close Loopholes:**
 - [ ] Identify NEW rationalizations from testing
@@ -627,6 +672,8 @@ Deploying untested skills = deploying untested code. It's a violation of quality
 - [ ] Common mistakes section
 - [ ] No narrative storytelling
 - [ ] Supporting files only for tools or heavy reference
+- [ ] Preserve required best-practices references and cross-links
+- [ ] Evidence recorded for examples inspected, validation run, and blockers/non-blockers
 
 **Deployment:**
 - [ ] Commit skill to git and push to your fork (if configured)
