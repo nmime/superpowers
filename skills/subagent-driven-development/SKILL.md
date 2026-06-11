@@ -11,7 +11,7 @@ Execute plan by dispatching fresh subagent per task, with two-stage review after
 
 **Core principle:** Fresh subagent per task + two-stage review (spec then quality) = high quality, fast iteration
 
-**Continuous execution:** Do not pause to check in with your human partner between tasks. Execute all tasks from the plan without stopping. The only reasons to stop are: BLOCKED status you cannot resolve, ambiguity that genuinely prevents progress, or all tasks complete. "Should I continue?" prompts and progress summaries waste their time — they asked you to execute the plan, so execute it.
+**Continuous execution:** Do not pause to check in with your human partner between tasks. Execute all tasks from the plan without stopping. Make bounded, reversible assumptions from the plan, codebase, and existing patterns; document those assumptions in prompts and reports. The only reasons to stop are: BLOCKED status you cannot resolve safely, missing access or tools, ambiguity that genuinely prevents safe progress, or all tasks complete. "Should I continue?" prompts and progress summaries waste their time — they asked you to execute the plan, so execute it.
 
 ## When to Use
 
@@ -48,8 +48,8 @@ digraph process {
     subgraph cluster_per_task {
         label="Per Task";
         "Dispatch implementer subagent (./implementer-prompt.md)" [shape=box];
-        "Implementer subagent asks questions?" [shape=diamond];
-        "Answer questions, provide context" [shape=box];
+        "Implementer subagent reports true blocker?" [shape=diamond];
+        "Resolve blocker or escalate unsafe ambiguity" [shape=box];
         "Implementer subagent implements, tests, commits, self-reviews" [shape=box];
         "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)" [shape=box];
         "Spec reviewer subagent confirms code matches spec?" [shape=diamond];
@@ -60,17 +60,19 @@ digraph process {
         "Mark task complete in TodoWrite" [shape=box];
     }
 
-    "Read plan, extract all tasks with full text, note context, create TodoWrite" [shape=box];
+    "Read plan, extract all tasks with full text, note context and bounded assumptions, create TodoWrite" [shape=box];
+    "Evaluate report evidence and changed files" [shape=box];
     "More tasks remain?" [shape=diamond];
     "Dispatch final code reviewer subagent for entire implementation" [shape=box];
     "Use superpowers:finishing-a-development-branch" [shape=box style=filled fillcolor=lightgreen];
 
-    "Read plan, extract all tasks with full text, note context, create TodoWrite" -> "Dispatch implementer subagent (./implementer-prompt.md)";
-    "Dispatch implementer subagent (./implementer-prompt.md)" -> "Implementer subagent asks questions?";
-    "Implementer subagent asks questions?" -> "Answer questions, provide context" [label="yes"];
-    "Answer questions, provide context" -> "Dispatch implementer subagent (./implementer-prompt.md)";
-    "Implementer subagent asks questions?" -> "Implementer subagent implements, tests, commits, self-reviews" [label="no"];
-    "Implementer subagent implements, tests, commits, self-reviews" -> "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)";
+    "Read plan, extract all tasks with full text, note context and bounded assumptions, create TodoWrite" -> "Dispatch implementer subagent (./implementer-prompt.md)";
+    "Dispatch implementer subagent (./implementer-prompt.md)" -> "Implementer subagent reports true blocker?";
+    "Implementer subagent reports true blocker?" -> "Resolve blocker or escalate unsafe ambiguity" [label="yes"];
+    "Resolve blocker or escalate unsafe ambiguity" -> "Dispatch implementer subagent (./implementer-prompt.md)";
+    "Implementer subagent reports true blocker?" -> "Implementer subagent implements, tests, commits, self-reviews" [label="no"];
+    "Implementer subagent implements, tests, commits, self-reviews" -> "Evaluate report evidence and changed files";
+    "Evaluate report evidence and changed files" -> "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)";
     "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)" -> "Spec reviewer subagent confirms code matches spec?";
     "Spec reviewer subagent confirms code matches spec?" -> "Implementer subagent fixes spec gaps" [label="no"];
     "Implementer subagent fixes spec gaps" -> "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)" [label="re-review"];
@@ -109,15 +111,15 @@ Implementer subagents report one of four statuses. Handle each appropriately:
 
 **DONE_WITH_CONCERNS:** The implementer completed the work but flagged doubts. Read the concerns before proceeding. If the concerns are about correctness or scope, address them before review. If they're observations (e.g., "this file is getting large"), note them and proceed to review.
 
-**NEEDS_CONTEXT:** The implementer needs information that wasn't provided. Provide the missing context and re-dispatch.
+**NEEDS_CONTEXT:** The implementer reports a true blocker because required context wasn't provided and cannot be inferred safely. Provide the missing context from the plan, repository, or user-supplied instructions, then re-dispatch. If the context can be inferred from existing code or a bounded assumption, provide that assumption and continue instead of asking the human.
 
 **BLOCKED:** The implementer cannot complete the task. Assess the blocker:
 1. If it's a context problem, provide more context and re-dispatch with the same model
 2. If the task requires more reasoning, re-dispatch with a more capable model
 3. If the task is too large, break it into smaller pieces
-4. If the plan itself is wrong, escalate to the human
+4. If the plan itself is wrong, conflicts with explicit user instructions, or would require an unsafe/destructive action, escalate to the human with exact evidence
 
-**Never** ignore an escalation or force the same model to retry without changes. If the implementer said it's stuck, something needs to change.
+**Never** ignore an escalation or force the same model to retry without changes. If the implementer said it's stuck, something needs to change. Ask the human only for true blockers or unsafe ambiguity; otherwise make a bounded assumption, record it, and continue.
 
 ## Prompt Templates
 
@@ -131,7 +133,7 @@ Implementer subagents report one of four statuses. Handle each appropriately:
 You: I'm using Subagent-Driven Development to execute this plan.
 
 [Read plan file once: docs/superpowers/plans/feature-plan.md]
-[Extract all 5 tasks with full text and context]
+[Extract all 5 tasks with full text, context, and bounded assumptions]
 [Create TodoWrite with all tasks]
 
 Task 1: Hook installation script
@@ -139,16 +141,15 @@ Task 1: Hook installation script
 [Get Task 1 text and context (already extracted)]
 [Dispatch implementation subagent with full task text + context]
 
-Implementer: "Before I begin - should the hook be installed at user or system level?"
+Implementer: "Assumption: installing at user level (~/.config/superpowers/hooks/) because existing hooks and docs use user config paths. Proceeding; will report this assumption."
 
-You: "User level (~/.config/superpowers/hooks/)"
-
-Implementer: "Got it. Implementing now..."
+You: [No clarification needed — bounded assumption is safe]
 [Later] Implementer:
   - Implemented install-hook command
   - Added tests, 5/5 passing
   - Self-review: Found I missed --force flag, added it
   - Committed
+  - Evidence: target branch/SHA, changed files, validation commands/results
 
 [Dispatch spec compliance reviewer]
 Spec reviewer: ✅ Spec compliant - all requirements met, nothing extra
@@ -160,10 +161,10 @@ Code reviewer: Strengths: Good test coverage, clean. Issues: None. Approved.
 
 Task 2: Recovery modes
 
-[Get Task 2 text and context (already extracted)]
+[Get Task 2 text, context, and assumptions (already extracted)]
 [Dispatch implementation subagent with full task text + context]
 
-Implementer: [No questions, proceeds]
+Implementer: [No true blockers, proceeds]
 Implementer:
   - Added verify/repair modes
   - 8/8 tests passing
@@ -207,7 +208,7 @@ Done!
 - Subagents follow TDD naturally
 - Fresh context per task (no confusion)
 - Parallel-safe (subagents don't interfere)
-- Subagent can ask questions (before AND during work)
+- Subagent can ask only for true blockers or unsafe ambiguity (before AND during work)
 
 **vs. Executing Plans:**
 - Same session (no handoff)
@@ -218,7 +219,7 @@ Done!
 - No file reading overhead (controller provides full text)
 - Controller curates exactly what context is needed
 - Subagent gets complete information upfront
-- Questions surfaced before work begins (not after)
+- True blockers surfaced before work begins; routine uncertainty becomes documented bounded assumptions
 
 **Quality gates:**
 - Self-review catches issues before handoff
@@ -242,17 +243,19 @@ Done!
 - Dispatch multiple implementation subagents in parallel (conflicts)
 - Make subagent read plan file (provide full text instead)
 - Skip scene-setting context (subagent needs to understand where task fits)
-- Ignore subagent questions (answer before letting them proceed)
+- Ignore subagent true blockers (resolve or escalate before letting them proceed)
 - Accept "close enough" on spec compliance (spec reviewer found issues = not done)
 - Skip review loops (reviewer found issues = implementer fixes = review again)
 - Let implementer self-review replace actual review (both are needed)
 - **Start code quality review before spec compliance is ✅** (wrong order)
 - Move to next task while either review has open issues
 
-**If subagent asks questions:**
-- Answer clearly and completely
+**If subagent reports a blocker:**
+- Confirm it is a true blocker or unsafe ambiguity, not routine uncertainty
+- Answer clearly and completely when repository evidence or the plan resolves it
 - Provide additional context if needed
-- Don't rush them into implementation
+- If it is not a true blocker, give a bounded assumption and continue
+- Don't rush them into unsafe implementation
 
 **If reviewer finds issues:**
 - Implementer (same subagent) fixes them
@@ -263,6 +266,10 @@ Done!
 **If subagent fails task:**
 - Dispatch fix subagent with specific instructions
 - Don't try to fix manually (context pollution)
+
+**Final reporting:**
+- Report target branch and SHAs, changed files, validation commands/results, review outcomes, assumptions made, and any unresolved blockers
+- If validation cannot run (for example, missing CLI), report the exact command, error, and closest static checks that did run
 
 ## Integration
 
