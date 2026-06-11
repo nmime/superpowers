@@ -21,6 +21,14 @@ NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE
 
 If you haven't run the verification command in this message, you cannot claim it passes.
 
+## Autonomous Verification Mandate
+
+Collect verification evidence autonomously. Do not ask for routine permission to inspect scripts, run tests, lint, typecheck, build, inspect diffs, or rerun failed checks after fixes. Identify the strongest safe verification available, execute it, read the full output and exit code, and report the evidence.
+
+Ask your human partner only for true blockers or destructive choices: missing credentials, unavailable external systems, commands that would mutate production/data, excessive cost, or ambiguity about which destructive path to take. If verification cannot run, report the exact blocker and the closest safe evidence you were able to collect.
+
+No commit, PR, handoff, or completion response may contain a success claim until fresh evidence has been collected and checked.
+
 ## The Gate Function
 
 ```
