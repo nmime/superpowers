@@ -1,6 +1,6 @@
 ---
 name: using-git-worktrees
-description: Use when starting feature work that needs isolation from current workspace or before executing implementation plans - ensures an isolated workspace exists via native tools or git worktree fallback
+description: Use when starting feature work that needs isolation from current workspace or before executing implementation plans - autonomously proves the target and ensures an isolated branch/workspace exists via native tools or git worktree fallback
 ---
 
 # Using Git Worktrees
@@ -9,9 +9,35 @@ description: Use when starting feature work that needs isolation from current wo
 
 Ensure work happens in an isolated workspace. Prefer your platform's native worktree tools. Fall back to manual git worktrees only when no native tool is available.
 
-**Core principle:** Detect existing isolation first. Then use native tools. Then fall back to git. Never fight the harness.
+**Core principle:** Prove the assigned target first. Detect existing isolation. Then use native tools. Then fall back to git. Never fight the harness, and do not pause for routine branch/workspace setup once the target is proven.
 
 **Announce at start:** "I'm using the using-git-worktrees skill to set up an isolated workspace."
+
+## Step -1: Prove Target and Authorization
+
+**Before creating, switching, or editing anything, prove that the current repository/path matches the assigned target.** If the user, parent agent, or plan names a target repo, path, base branch, base SHA, or branch name, verify it explicitly.
+
+Recommended proof commands:
+
+```bash
+printf 'repo=%s\n' "$(git remote get-url origin 2>/dev/null || true)"
+printf 'root=%s\n' "$(git rev-parse --show-toplevel 2>/dev/null || true)"
+printf 'branch=%s\n' "$(git branch --show-current 2>/dev/null || true)"
+printf 'head=%s\n' "$(git rev-parse HEAD 2>/dev/null || true)"
+git status --short
+```
+
+If a base SHA is assigned, fetch as needed and verify it exists before branching:
+
+```bash
+git fetch --quiet origin
+git cat-file -e <base-sha>^{commit}
+git rev-parse <base-sha>
+```
+
+**Stop on target mismatch.** Do not create branches, worktrees, commits, pushes, or edits in a source/foundation repo or any path outside the assigned target. Report the mismatch with observed repo/path/branch/SHA.
+
+**Authorization gates:** creating or checking out an assigned branch/worktree is allowed after target proof. Pushing, merging, deleting, force-resetting, discarding work, deploying, or editing files outside the assigned scope still requires explicit assignment or confirmation.
 
 ## Step 0: Detect Existing Isolation
 
@@ -38,11 +64,13 @@ Report with branch state:
 
 **If `GIT_DIR == GIT_COMMON` (or in a submodule):** You are in a normal repo checkout.
 
-Has the user already indicated their worktree preference in your instructions? If not, ask for consent before creating a worktree:
+Has the user already indicated their worktree or branch preference in your instructions? Honor it without asking. If the task assigns a target branch, base SHA, or isolated workspace, set it up autonomously after Step -1 target proof.
+
+Ask for consent only when worktree creation is discretionary (no assigned branch/worktree/scope and no declared preference):
 
 > "Would you like me to set up an isolated worktree? It protects your current branch from changes."
 
-Honor any existing declared preference without asking. If the user declines consent, work in place and skip to Step 3.
+If the user declines consent, work in place and skip to Step 3.
 
 ## Step 1: Create Isolated Workspace
 
@@ -90,13 +118,15 @@ Follow this priority order. Explicit user preference always beats observed files
 git check-ignore -q .worktrees 2>/dev/null || git check-ignore -q worktrees 2>/dev/null
 ```
 
-**If NOT ignored:** Add to .gitignore, commit the change, then proceed.
+**If NOT ignored:** Add the chosen project-local worktree directory to `.gitignore` as a setup change. Commit that setup change only when commits are assigned or clearly allowed by the task; otherwise report the required setup change before proceeding.
 
 **Why critical:** Prevents accidentally committing worktree contents to repository.
 
 Global directories (`~/.config/superpowers/worktrees/`) need no verification.
 
-#### Create the Worktree
+#### Create or Verify the Branch/Worktree
+
+If a base SHA or base branch is assigned, create the branch from that exact base instead of the current HEAD. If the branch already exists, verify it points at the assigned base or contains it before using it; do not overwrite existing work without explicit authorization.
 
 ```bash
 project=$(basename "$(git rev-parse --show-toplevel)")
@@ -105,9 +135,16 @@ project=$(basename "$(git rev-parse --show-toplevel)")
 # For project-local: path="$LOCATION/$BRANCH_NAME"
 # For global: path="~/.config/superpowers/worktrees/$project/$BRANCH_NAME"
 
-git worktree add "$path" -b "$BRANCH_NAME"
+# Assigned base SHA/branch: use it explicitly. Otherwise omit the final start-point.
+git worktree add "$path" -b "$BRANCH_NAME" <base-sha-or-branch>
 cd "$path"
+
+printf 'worktree=%s\n' "$(git rev-parse --show-toplevel)"
+printf 'branch=%s\n' "$(git branch --show-current)"
+printf 'head=%s\n' "$(git rev-parse HEAD)"
 ```
+
+When only a branch is needed and worktree creation is not available or not requested, use `git switch -c "$BRANCH_NAME" <base-sha-or-branch>` after target proof and the same existing-branch checks.
 
 **Sandbox fallback:** If `git worktree add` fails with a permission error (sandbox denial), tell the user the sandbox blocked worktree creation and you're working in the current directory instead. Then run setup and baseline tests in place.
 
@@ -139,14 +176,16 @@ Run tests to ensure workspace starts clean:
 npm test / cargo test / pytest / go test ./...
 ```
 
-**If tests fail:** Report failures, ask whether to proceed or investigate.
+**If tests fail:** Report failures as baseline evidence. Continue only when the assigned task explicitly says to proceed despite baseline failures; otherwise stop with a blocker instead of asking an open-ended question.
 
 **If tests pass:** Report ready.
 
 ### Report
 
 ```
+Target proof: <repo/path/branch/SHA verified>
 Worktree ready at <full-path>
+Branch/base: <branch> from <base>
 Tests passing (<N> tests, 0 failures)
 Ready to implement <feature-name>
 ```
@@ -164,9 +203,9 @@ Ready to implement <feature-name>
 | Both exist | Use `.worktrees/` |
 | Neither exists | Check instruction file, then default `.worktrees/` |
 | Global path exists | Use it (backward compat) |
-| Directory not ignored | Add to .gitignore + commit |
+| Directory not ignored | Add to `.gitignore`; commit only when assigned/allowed |
 | Permission error on create | Sandbox fallback, work in place |
-| Tests fail during baseline | Report failures + ask |
+| Tests fail during baseline | Report failures; continue only if explicitly assigned, otherwise stop blocked |
 | No package.json/Cargo.toml | Skip dependency install |
 
 ## Common Mistakes
@@ -194,7 +233,7 @@ Ready to implement <feature-name>
 ### Proceeding with failing tests
 
 - **Problem:** Can't distinguish new bugs from pre-existing issues
-- **Fix:** Report failures, get explicit permission to proceed
+- **Fix:** Report failures; continue only when the assignment explicitly authorizes proceeding despite baseline failures
 
 ## Red Flags
 
@@ -204,12 +243,12 @@ Ready to implement <feature-name>
 - Skip Step 1a by jumping straight to Step 1b's git commands
 - Create worktree without verifying it's ignored (project-local)
 - Skip baseline test verification
-- Proceed with failing tests without asking
+- Proceed with failing baseline tests without explicit assignment
 
 **Always:**
-- Run Step 0 detection first
+- Run Step -1 target proof first, then Step 0 detection
 - Prefer native tools over git fallback
 - Follow directory priority: existing > global legacy > instruction file > default
 - Verify directory is ignored for project-local
-- Auto-detect and run project setup
+- Auto-detect and run project setup without unnecessary permission pauses
 - Verify clean test baseline

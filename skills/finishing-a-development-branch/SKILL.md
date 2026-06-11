@@ -1,19 +1,38 @@
 ---
 name: finishing-a-development-branch
-description: Use when implementation is complete, all tests pass, and you need to decide how to integrate the work - guides completion of development work by presenting structured options for merge, PR, or cleanup
+description: Use when implementation is complete and you need to verify, report, or explicitly integrate the work - autonomously runs final checks and preserves gates for merge, PR, push, destructive cleanup, or deploy
 ---
 
 # Finishing a Development Branch
 
 ## Overview
 
-Guide completion of development work by presenting clear options and handling chosen workflow.
+Guide completion of development work by verifying the target, running final checks, reporting results, and handling an explicitly chosen integration workflow.
 
-**Core principle:** Verify tests → Detect environment → Present options → Execute choice → Clean up.
+**Core principle:** Prove target → Verify tests → Detect environment → Report completion or execute explicitly assigned action → Clean up only when authorized.
 
 **Announce at start:** "I'm using the finishing-a-development-branch skill to complete this work."
 
 ## The Process
+
+### Step 0: Prove Target and Scope
+
+Before final verification, commits, pushes, merges, cleanup, or deployment, prove that the working copy matches the assigned target repo/path/branch/SHA and that only assigned files changed.
+
+Recommended proof commands:
+
+```bash
+printf 'repo=%s\n' "$(git remote get-url origin 2>/dev/null || true)"
+printf 'root=%s\n' "$(git rev-parse --show-toplevel 2>/dev/null || true)"
+printf 'branch=%s\n' "$(git branch --show-current 2>/dev/null || true)"
+printf 'head=%s\n' "$(git rev-parse HEAD 2>/dev/null || true)"
+git status --short
+git diff --name-only HEAD
+```
+
+If the target repo/path/branch/SHA does not match, stop and report the mismatch. If changed files include paths outside the assigned scope, stop before committing/pushing and report them.
+
+**Authorization gates:** final verification and reporting are autonomous. Commit only when assigned. Push, merge, force-push, branch deletion, worktree removal, discard/reset, deploy, and release publication require explicit assignment or the typed confirmations below.
 
 ### Step 1: Verify Tests
 
@@ -33,7 +52,7 @@ Tests failing (<N> failures). Must fix before completing:
 Cannot proceed with merge/PR until tests pass.
 ```
 
-Stop. Don't proceed to Step 2.
+Stop before merge/PR/push/deploy. If the assigned task is only to report final status, continue to Step 4 with a blocked verification report.
 
 **If tests pass:** Continue to Step 2.
 
@@ -63,9 +82,13 @@ git merge-base HEAD main 2>/dev/null || git merge-base HEAD master 2>/dev/null
 
 Or ask: "This branch split from main - is that correct?"
 
-### Step 4: Present Options
+### Step 4: Decide Completion Path
 
-**Normal repo and named-branch worktree — present exactly these 4 options:**
+If the assignment only asked for implementation, verification, a commit, or a final report, do not present a menu or pause. Run the relevant final verification, report target proof, changed files, validation, tests, errors, and next step. Keep the branch/worktree as-is.
+
+Present options only when integration/cleanup is not already assigned and the next action requires user choice or authorization.
+
+**Normal repo and named-branch worktree — when a choice is required, present exactly these 4 options:**
 
 ```
 Implementation complete. What would you like to do?
@@ -78,7 +101,7 @@ Implementation complete. What would you like to do?
 Which option?
 ```
 
-**Detached HEAD — present exactly these 3 options:**
+**Detached HEAD — when a choice is required, present exactly these 3 options:**
 
 ```
 Implementation complete. You're on a detached HEAD (externally managed workspace).
@@ -90,9 +113,22 @@ Implementation complete. You're on a detached HEAD (externally managed workspace
 Which option?
 ```
 
-**Don't add explanation** - keep options concise.
+**Don't add explanation** - keep options concise. Do not use the menu as a substitute for an assigned autonomous final report.
 
 ### Step 5: Execute Choice
+
+#### Assigned Final Report / Keep As-Is
+
+When no merge, PR, push, discard, cleanup, or deploy is explicitly assigned, finish with a concise report and preserve the branch/worktree:
+
+```text
+Target proof: <repo/path/branch/SHA>
+Changed files: <files>
+Validation: <commands and pass/fail results>
+Tests: <test files added/updated or none>
+Safety gates: no push/merge/deploy/destructive cleanup performed because not assigned
+Next: <requested next step or none>
+```
 
 #### Option 1: Merge Locally
 
@@ -120,6 +156,8 @@ git branch -d <feature-branch>
 
 #### Option 2: Push and Create PR
 
+Only perform this option when the user/parent explicitly assigned push/PR creation or selected this option. Verify the commit to push exists on the assigned branch first.
+
 ```bash
 # Push branch
 git push -u origin <feature-branch>
@@ -145,7 +183,7 @@ Report: "Keeping branch <name>. Worktree preserved at <path>."
 
 #### Option 4: Discard
 
-**Confirm first:**
+This is destructive. **Confirm first:**
 ```
 This will permanently delete:
 - Branch <name>
@@ -170,7 +208,7 @@ git branch -D <feature-branch>
 
 ### Step 6: Cleanup Workspace
 
-**Only runs for Options 1 and 4.** Options 2 and 3 always preserve the worktree.
+**Only runs for Options 1 and 4 after explicit authorization.** Options 2, 3, and assigned final-report-only completion always preserve the worktree.
 
 ```bash
 GIT_DIR=$(cd "$(git rev-parse --git-dir)" 2>/dev/null && pwd -P)
@@ -197,7 +235,7 @@ git worktree prune  # Self-healing: clean up any stale registrations
 |--------|-------|------|---------------|----------------|
 | 1. Merge locally | yes | - | - | yes |
 | 2. Create PR | - | yes | yes | - |
-| 3. Keep as-is | - | - | yes | - |
+| 3. Keep as-is / final report | - | - | yes | - |
 | 4. Discard | - | - | - | yes (force) |
 
 ## Common Mistakes
@@ -206,9 +244,9 @@ git worktree prune  # Self-healing: clean up any stale registrations
 - **Problem:** Merge broken code, create failing PR
 - **Fix:** Always verify tests before offering options
 
-**Open-ended questions**
-- **Problem:** "What should I do next?" is ambiguous
-- **Fix:** Present exactly 4 structured options (or 3 for detached HEAD)
+**Unnecessary pauses**
+- **Problem:** Asking what to do when the assignment already asked for final verification/report, commit, push, or PR
+- **Fix:** Execute the assigned safe action autonomously after target proof; present options only when authorization or choice is missing
 
 **Cleaning up worktree for Option 2**
 - **Problem:** Remove worktree user needs for PR iteration
@@ -233,7 +271,8 @@ git worktree prune  # Self-healing: clean up any stale registrations
 ## Red Flags
 
 **Never:**
-- Proceed with failing tests
+- Proceed with failing tests to merge/PR/push/deploy
+- Commit, push, merge, deploy, delete, reset, discard, or clean up without target proof and authorization
 - Merge without verifying tests on result
 - Delete work without confirmation
 - Force-push without explicit request
@@ -242,10 +281,11 @@ git worktree prune  # Self-healing: clean up any stale registrations
 - Run `git worktree remove` from inside the worktree
 
 **Always:**
-- Verify tests before offering options
+- Prove target and changed-file scope before final actions
+- Verify tests before offering options or final report
 - Detect environment before presenting menu
-- Present exactly 4 options (or 3 for detached HEAD)
+- Present exactly 4 options (or 3 for detached HEAD) only when a choice is required
 - Get typed confirmation for Option 4
 - Clean up worktree for Options 1 & 4 only
 - `cd` to main repo root before worktree removal
-- Run `git worktree prune` after removal
+- Run `git worktree prune` after authorized removal
