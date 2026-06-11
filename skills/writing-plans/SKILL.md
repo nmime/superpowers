@@ -18,6 +18,14 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 **Save plans to:** `docs/superpowers/plans/YYYY-MM-DD-<feature-name>.md`
 - (User preferences for plan location override this default)
 
+## Autonomous Planning Rules
+
+When a spec or requirements are available, inspect the repository, existing patterns, tests, and relevant docs yourself before drafting the plan. Do not ask the user to identify files, commands, or conventions you can discover.
+
+Ask clarifying questions only for contradictions, missing acceptance criteria, or scope decisions that would change the plan materially. For non-blocking details, choose the smallest YAGNI-consistent approach and make the assumption explicit in the plan.
+
+A complete handoff includes the saved plan path, mapped requirements, exact files, commands with expected results, self-review findings, and the recommended execution path. Do not begin implementation until the plan is written and the user selects or has already assigned an execution mode.
+
 ## Scope Check
 
 If the spec covers multiple independent subsystems, it should have been broken into sub-project specs during brainstorming. If it wasn't, suggest breaking this into separate plans — one per subsystem. Each plan should produce working, testable software on its own.

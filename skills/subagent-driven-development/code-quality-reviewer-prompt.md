@@ -6,6 +6,8 @@ Use this template when dispatching a code quality reviewer subagent.
 
 **Only dispatch after spec compliance review passes.**
 
+**Autonomous reviewer expectation:** Inspect the diff and relevant files yourself, run or identify appropriate validation when feasible, and return concrete file:line evidence. Ask for help only if required artifacts are inaccessible.
+
 ```
 Task tool (general-purpose):
   Use template at requesting-code-review/code-reviewer.md

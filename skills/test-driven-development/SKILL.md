@@ -13,6 +13,14 @@ Write the test first. Watch it fail. Write minimal code to pass.
 
 **Violating the letter of the rules is violating the spirit of the rules.**
 
+## Autonomous TDD Rules
+
+When you are assigned implementation work, discover the test framework and write the first failing test without waiting for the user to direct you. Use existing test style, fixtures, and naming. For bug fixes, reproduce the reported behavior first; for features, encode the next small requirement.
+
+Ask the user only when desired behavior is genuinely unspecified, no safe automated test strategy exists, or an exception to TDD is needed. Do not use lack of perfect test coverage as an excuse to skip the red-green cycle; use the closest safe test level available.
+
+Your evidence is the red failure output, the minimal implementation, the green output, and any broader regression run. Stop before production code if you cannot create or run a meaningful failing test.
+
 ## When to Use
 
 **Always:**

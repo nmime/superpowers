@@ -9,6 +9,14 @@ Dispatch a code reviewer subagent to catch issues before they cascade. The revie
 
 **Core principle:** Review early, review often.
 
+## Autonomous Review Request Rules
+
+If review is mandatory for the workflow, request it without asking first. Gather the base/head SHAs, plan or requirements, changed-file summary, and verification results yourself, then dispatch a reviewer with self-contained context.
+
+Ask the user only when the review target is ambiguous, there are multiple possible base branches and no evidence for choosing one, or the environment lacks subagents/review tooling. Do not depend on the user to describe what changed if git and the plan can show it.
+
+After review, do not treat the reviewer report as final truth. Use the receiving-code-review skill to verify issues, fix valid findings, push back with evidence when needed, and re-run relevant validation before proceeding.
+
 ## When to Request Review
 
 **Mandatory:**

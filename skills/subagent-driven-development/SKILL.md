@@ -13,6 +13,14 @@ Execute plan by dispatching fresh subagent per task, with two-stage review after
 
 **Continuous execution:** Do not pause to check in with your human partner between tasks. Execute all tasks from the plan without stopping. The only reasons to stop are: BLOCKED status you cannot resolve, ambiguity that genuinely prevents progress, or all tasks complete. "Should I continue?" prompts and progress summaries waste their time — they asked you to execute the plan, so execute it.
 
+## Autonomous Controller Checklist
+
+Before the first task, verify the worktree/branch, read the entire plan once, extract all tasks, and identify task boundaries, expected files, and validation commands. Do not make implementers read the plan file; provide the exact task text and necessary context.
+
+Ask the user only for blockers that the controller cannot resolve: missing requirements, conflicting priorities, unavailable credentials, or destructive/deployment actions outside the plan. Otherwise keep the pipeline moving: implementer → spec review → fixes → code quality review → fixes → task complete.
+
+Your evidence at each handoff is the implementer report, reviewer verdicts, git SHAs, files changed, and validation output. Stop only when a subagent returns BLOCKED/NEEDS_CONTEXT you cannot resolve, reviews keep failing for the same architectural reason, or all tasks are complete and branch finishing should begin.
+
 ## When to Use
 
 ```dot

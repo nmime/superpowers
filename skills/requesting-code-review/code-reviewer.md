@@ -32,6 +32,12 @@ Task tool (general-purpose):
 
     ## What to Check
 
+    ## Autonomous Review Rules
+
+    Inspect the diff and relevant files yourself using the provided SHAs. Do not rely on the implementer's summary for correctness, and do not ask for hand-holding unless required files or commands are inaccessible.
+
+    Run or identify the most relevant validation when feasible. If you cannot run it, state why and assess based on code evidence. Every issue needs a file:line reference or a precise artifact reference.
+
     **Plan alignment:**
     - Does the implementation match the plan / requirements?
     - Are deviations justified improvements, or problematic departures?

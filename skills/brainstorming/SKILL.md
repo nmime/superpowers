@@ -9,6 +9,14 @@ Help turn ideas into fully formed designs and specs through natural collaborativ
 
 Start by understanding the current project context, then ask questions one at a time to refine the idea. Once you understand what you're building, present the design and get user approval.
 
+## Autonomous Invocation
+
+Use this skill immediately when the request involves creative product or technical design work. Do not wait for the user to ask for a design process. Before asking the first question, inspect the repository, docs, and recent commits yourself so the user is not asked to provide context you can discover.
+
+Ask clarifying questions only for decisions that would materially change the design. Keep them one at a time. If a detail is non-blocking, choose the simplest reasonable default, state it in the design, and let the user correct it during review.
+
+Do not hand off to implementation or planning until the design is approved, written, self-reviewed, and the user has reviewed the spec file. Your evidence is the committed spec path plus the self-review findings.
+
 <HARD-GATE>
 Do NOT invoke any implementation skill, write any code, scaffold any project, or take any implementation action until you have presented a design and the user has approved it. This applies to EVERY project regardless of perceived simplicity.
 </HARD-GATE>

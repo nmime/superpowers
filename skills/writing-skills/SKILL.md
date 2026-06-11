@@ -19,6 +19,14 @@ You write test cases (pressure scenarios with subagents), watch them fail (basel
 
 **Official guidance:** For Anthropic's official skill authoring best practices, see anthropic-best-practices.md. This document provides additional patterns and guidelines that complement the TDD-focused approach in this skill.
 
+## Autonomous Skill Authoring Rules
+
+When asked to create or edit a skill, start by inspecting existing skills, target directories, frontmatter conventions, and any available usage examples. Do not ask the user to restate conventions you can read.
+
+Ask only for blocking product decisions: intended audience, exact trigger scope, or constraints that cannot be inferred. Otherwise write or revise the smallest skill that changes future agent behavior, preserving formatting and references where possible.
+
+Verify autonomously: frontmatter parses, description is trigger-focused, references exist, pressure scenarios or equivalent checks were run when feasible, and deployment/commit steps are only performed when configured or explicitly authorized. Stop and report blockers if you cannot validate the skill under realistic pressure.
+
 ## What is a Skill?
 
 A **skill** is a reference guide for proven techniques, patterns, or tools. Skills help future Claude instances find and apply effective approaches.

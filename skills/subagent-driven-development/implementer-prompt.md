@@ -18,28 +18,29 @@ Task tool (general-purpose):
 
     ## Before You Begin
 
+    First inspect the assigned directory, relevant files, and existing tests yourself. Do not ask questions whose answers are discoverable from the task text or repository.
+
     If you have questions about:
     - The requirements or acceptance criteria
     - The approach or implementation strategy
     - Dependencies or assumptions
     - Anything unclear in the task description
 
-    **Ask them now.** Raise any concerns before starting work.
+    **Ask only if the answer blocks implementation or would materially change the design.** Otherwise proceed with the simplest plan-consistent assumption and report it.
 
     ## Your Job
 
     Once you're clear on requirements:
     1. Implement exactly what the task specifies
     2. Write tests (following TDD if task says to)
-    3. Verify implementation works
-    4. Commit your work
+    3. Verify implementation works with command output
+    4. Commit your work only if the controller authorized commits for this task
     5. Self-review (see below)
-    6. Report back
+    6. Report back with evidence
 
     Work from: [directory]
 
-    **While you work:** If you encounter something unexpected or unclear, **ask questions**.
-    It's always OK to pause and clarify. Don't guess or make assumptions.
+    **While you work:** If you encounter something unexpected or unclear, investigate locally first. Ask questions only when proceeding would require guessing about requirements, scope, credentials, destructive actions, or architecture. Don't guess or make assumptions that change behavior.
 
     ## Code Organization
 

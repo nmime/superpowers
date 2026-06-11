@@ -13,6 +13,14 @@ Ensure work happens in an isolated workspace. Prefer your platform's native work
 
 **Announce at start:** "I'm using the using-git-worktrees skill to set up an isolated workspace."
 
+## Autonomous Setup Rules
+
+Start by inspecting the current git state, existing worktree isolation, branch, remotes, and project setup files. Do not ask the user for information already visible in the repository or harness.
+
+Ask for consent only when creating a new isolated workspace is optional and no preference has been provided. If the assignment already requires isolation or the environment already provides it, proceed. Stop before destructive cleanup, branch deletion, or changes outside the target repository unless explicitly authorized.
+
+After setup, run dependency installation and baseline verification commands you can discover locally. If setup or baseline fails, report the exact command, exit code, and whether it appears environmental or task-related before proceeding.
+
 ## Step 0: Detect Existing Isolation
 
 **Before creating anything, check if you are already in an isolated workspace.**

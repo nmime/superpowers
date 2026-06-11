@@ -15,6 +15,12 @@ Task tool (general-purpose):
     **Plan to review:** [PLAN_FILE_PATH]
     **Spec for reference:** [SPEC_FILE_PATH]
 
+    ## Autonomous Review Rules
+
+    Read the plan and spec yourself. Do not ask for a summary. Ask only if required files are missing or inaccessible.
+
+    Ground every blocking issue in a specific task, step, requirement, or missing artifact. If you cannot complete the review, return `Status: Blocked` with the exact missing input.
+
     ## What to Check
 
     | Category | What to Look For |

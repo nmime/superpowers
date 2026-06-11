@@ -11,6 +11,14 @@ Load plan, review critically, execute all tasks, report when complete.
 
 **Announce at start:** "I'm using the executing-plans skill to implement this plan."
 
+## Autonomous Execution Rules
+
+Once a plan is provided, proceed without progress check-ins or permission prompts. Create task tracking, execute tasks in order, and run the verification named in each task before moving on.
+
+Ask the user only for true blockers: missing requirements that prevent choosing an implementation, destructive or deployment actions not already authorized, unavailable credentials, or repeated verification failures after root-cause investigation. For non-blocking gaps, follow existing code patterns and document the assumption in your status.
+
+Do not claim completion or move to branch finishing until every plan task is complete and freshly verified. Your handoff evidence is: completed task list, changed files, commands run, outputs or failure summaries, and any unresolved blockers.
+
 **Note:** Tell your human partner that Superpowers works much better with access to subagents. The quality of its work will be significantly higher if run on a platform with subagent support (such as Claude Code or Codex). If subagents are available, use superpowers:subagent-driven-development instead of this skill.
 
 ## The Process

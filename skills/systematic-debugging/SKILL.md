@@ -13,6 +13,14 @@ Random fixes waste time and create new bugs. Quick patches mask underlying issue
 
 **Violating the letter of this process is violating the spirit of debugging.**
 
+## Autonomous Debugging Rules
+
+Start the investigation immediately when you see a bug, test failure, build failure, or unexpected behavior. Do not ask the user what to inspect first when you can read errors, logs, diffs, recent commits, and relevant code yourself.
+
+Ask only for missing reproduction context, unavailable systems/credentials, or product decisions exposed by the root cause. Otherwise gather evidence, form one hypothesis at a time, test it minimally, and keep a concise trail of what you observed.
+
+Do not implement a fix until the root cause is identified and, when feasible, captured by a failing regression test. Stop and hand off if reproduction is impossible with available resources, three fix hypotheses fail, or the evidence points to an architectural decision outside your scope.
+
 ## The Iron Law
 
 ```

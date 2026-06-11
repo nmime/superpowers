@@ -13,6 +13,14 @@ Claiming work is complete without verification is dishonesty, not efficiency.
 
 **Violating the letter of this rule is violating the spirit of this rule.**
 
+## Autonomous Verification Rules
+
+When you are about to make any success, completion, or readiness claim, identify and run the proving commands yourself. Do not ask the user which command proves a claim if package scripts, README, CI, Makefiles, or prior plan steps already define it.
+
+Ask only when no trustworthy verification path exists or running it would be destructive, costly, or outside the assignment. If verification fails, stop and report the actual status with command, exit code, and key output instead of softening the claim.
+
+Your final response must tie each claim to fresh evidence: command output, test counts, diff/requirements checks, or explicit blockers.
+
 ## The Iron Law
 
 ```

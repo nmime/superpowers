@@ -14,6 +14,12 @@ Task tool (general-purpose):
 
     **Spec to review:** [SPEC_FILE_PATH]
 
+    ## Autonomous Review Rules
+
+    Read the spec file and any directly referenced context yourself. Do not ask the requester to summarize the spec. Ask only if the file is inaccessible or required context is missing.
+
+    Ground every issue in evidence from the spec. If you cannot complete the review, return `Status: Blocked` with the exact missing artifact or access problem.
+
     ## What to Check
 
     | Category | What to Look For |

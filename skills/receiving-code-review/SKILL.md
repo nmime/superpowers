@@ -11,6 +11,14 @@ Code review requires technical evaluation, not emotional performance.
 
 **Core principle:** Verify before implementing. Ask before assuming. Technical correctness over social comfort.
 
+## Autonomous Review-Handling Rules
+
+When review feedback arrives, build your own feedback matrix: item, source, requirement, files to inspect, decision, action, and validation. Do not ask the user to organize or prioritize it unless priorities conflict or an item is ambiguous enough to change implementation.
+
+Ask clarifying questions only for blocking ambiguity. Otherwise verify against the codebase, implement technically correct items one at a time, and validate each with the smallest relevant test plus broader regression checks when appropriate.
+
+Stop and hand off when feedback conflicts with prior user decisions, requires scope beyond the assignment, needs credentials/resources you lack, or appears technically wrong after verification. Include evidence for any pushback.
+
 ## The Response Pattern
 
 ```

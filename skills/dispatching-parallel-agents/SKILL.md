@@ -13,6 +13,14 @@ When you have multiple unrelated failures (different test files, different subsy
 
 **Core principle:** Dispatch one agent per independent problem domain. Let them work concurrently.
 
+## Autonomous Dispatch Rules
+
+Use this skill without asking permission when you identify 2+ independent domains and have a safe way to delegate. Before dispatch, make the independence decision explicit: domain, files/resources, expected output, and why it will not conflict with the others.
+
+Do not ask the user to split the work for you. If independence is unclear, do one quick triage pass yourself. Ask only when parallel agents would edit the same files/resources, require credentials you do not have, or the assignment forbids delegation.
+
+After agents return, validate their reports: inspect changed files or evidence, check for overlap/conflicts, and run the relevant combined verification. Stop using this skill and switch to sequential work if domains prove coupled.
+
 ## When to Use
 
 ```dot

@@ -36,6 +36,10 @@ Task tool (general-purpose):
 
     ## Your Job
 
+    ## Autonomous Review Rules
+
+    Inspect the code and diffs yourself. Do not ask the implementer to explain unless required artifacts are missing. If you cannot review, return BLOCKED with the exact missing file, SHA, or access problem.
+
     Read the implementation code and verify:
 
     **Missing requirements:**
@@ -53,7 +57,7 @@ Task tool (general-purpose):
     - Did they solve the wrong problem?
     - Did they implement the right feature but wrong way?
 
-    **Verify by reading code, not by trusting report.**
+    **Verify by reading code, not by trusting report.** Cite file:line evidence for every issue. If the implementation is compliant, state what you inspected.
 
     Report:
     - ✅ Spec compliant (if everything matches after code inspection)

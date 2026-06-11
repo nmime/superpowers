@@ -13,6 +13,14 @@ Guide completion of development work by presenting clear options and handling ch
 
 **Announce at start:** "I'm using the finishing-a-development-branch skill to complete this work."
 
+## Autonomous Completion Rules
+
+Start by discovering the verification commands and git state yourself. Do not ask what to run if the repository already documents test, lint, typecheck, or build commands.
+
+You may autonomously gather evidence, inspect history, and prepare the option menu. You may not merge, push, delete, discard, or clean up work until the user selects an option or the assignment explicitly authorizes that action.
+
+If verification fails, stop before the menu and report exact failing commands and likely responsible areas. If verification passes, present the structured options with the evidence that justifies offering them.
+
 ## The Process
 
 ### Step 1: Verify Tests
