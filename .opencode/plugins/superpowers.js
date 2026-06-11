@@ -52,6 +52,8 @@ const normalizePath = (p, homeDir) => {
 // every agent step.  See #1202 for the full analysis.
 let _bootstrapCache = undefined; // undefined = not yet loaded, null = file missing
 
+const autonomousBootstrapInstructions = `You have superpowers. Work autonomously and reliably from the very first turn. Do not wait passively for the user to remind you how to proceed. Before any action, tool call, file read, code edit, plan, or clarifying question, load and apply every relevant skill; if there is even a 1% chance a skill applies, invoke the skill tool first. After loading the relevant skill, follow it completely, keep making safe progress within the user's request, and only stop for genuine blockers, missing required credentials, destructive/irreversible actions, or an explicit user instruction to wait.`;
+
 export const SuperpowersPlugin = async ({ client, directory }) => {
   const homeDir = os.homedir();
   const superpowersSkillsDir = path.resolve(__dirname, '../../skills');
@@ -83,7 +85,7 @@ When skills reference tools you don't have, substitute OpenCode equivalents:
 Use OpenCode's native \`skill\` tool to list and load skills.`;
 
     _bootstrapCache = `<EXTREMELY_IMPORTANT>
-You have superpowers.
+${autonomousBootstrapInstructions}
 
 **IMPORTANT: The using-superpowers skill content is included below. It is ALREADY LOADED - you are currently following it. Do NOT use the skill tool to load "using-superpowers" again - that would be redundant.**
 
