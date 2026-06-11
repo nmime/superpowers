@@ -19,6 +19,15 @@ Next up, once you say "go", it launches a *subagent-driven-development* process,
 There's a bunch more to it, but that's the core of the system. And because the skills trigger automatically, you don't need to do anything special. Your coding agent just has Superpowers.
 
 
+### Autonomous skill use
+
+Superpowers is designed to make the agent invoke the right skill on its own, not to make you remember magic words. Supported harnesses load the `using-superpowers` bootstrap at session start. From there, the agent checks the available skills before responding, invokes the relevant skill when a task matches, and follows that skill through the current workflow phase.
+
+That autonomy continues across phase boundaries. After brainstorming produces an approved design, the agent should continue into planning when asked to proceed. After the plan is approved, it should continue into implementation, review, verification, and branch-finishing behavior without needing you to name each skill. Human approval gates still matter — Superpowers does not remove design or plan approval — but once a gate is passed, the agent should move the work forward using the next applicable skill.
+
+A working integration leaves acceptance evidence in the session transcript: the bootstrap was loaded, the relevant skill tool was invoked before the agent acted, phase transitions happened through the Superpowers workflow, and implementation claims were backed by validation output rather than unsupported assertions.
+
+
 ## Sponsorship
 
 If Superpowers has helped you do stuff that makes money and you are so inclined, I'd greatly appreciate it if you'd consider [sponsoring my opensource work](https://github.com/sponsors/obra).
@@ -168,6 +177,8 @@ already use it in another harness.
 7. **finishing-a-development-branch** - Activates when tasks complete. Verifies tests, presents options (merge/PR/keep/discard), cleans up worktree.
 
 **The agent checks for relevant skills before any task.** Mandatory workflows, not suggestions.
+
+When a task spans multiple workflow phases, the agent is expected to keep checking for the next relevant skill and continue from one phase to the next after the required human checkpoint is satisfied. If an integration requires the user to manually remind the agent to load each skill, the integration is not delivering the intended Superpowers experience.
 
 ## What's Inside
 
