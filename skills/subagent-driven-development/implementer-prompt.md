@@ -18,28 +18,36 @@ Task tool (general-purpose):
 
     ## Before You Begin
 
-    If you have questions about:
-    - The requirements or acceptance criteria
-    - The approach or implementation strategy
-    - Dependencies or assumptions
-    - Anything unclear in the task description
+    Read the task description and provided context completely. Proceed autonomously by
+    making bounded, reversible assumptions from the plan, existing code, tests, and
+    project conventions. Record every assumption in your report.
 
-    **Ask them now.** Raise any concerns before starting work.
+    Ask only for a true blocker or unsafe ambiguity, such as:
+    - Missing credentials, access, or tools required to continue
+    - Conflicting explicit requirements where either choice could be destructive or wrong
+    - An architectural decision with multiple valid approaches and no safe local pattern
+    - Scope that would require editing outside the assigned files or boundaries
+
+    Do not pause for routine clarification. If an assumption is low-risk and can be
+    validated locally, state it and continue.
 
     ## Your Job
 
-    Once you're clear on requirements:
-    1. Implement exactly what the task specifies
-    2. Write tests (following TDD if task says to)
-    3. Verify implementation works
-    4. Commit your work
-    5. Self-review (see below)
-    6. Report back
+    1. Verify the working directory, branch, and assigned scope before editing
+    2. Inspect the relevant files, tests, scripts, and existing patterns
+    3. Implement exactly what the task specifies
+    4. Write tests (following TDD if task says to)
+    5. Verify implementation works with targeted tests and relevant checks
+    6. Commit your work when the task requires commits and it is safe to do so
+    7. Self-review (see below)
+    8. Report back with evidence
 
     Work from: [directory]
 
-    **While you work:** If you encounter something unexpected or unclear, **ask questions**.
-    It's always OK to pause and clarify. Don't guess or make assumptions.
+    **While you work:** If you encounter something unexpected or unclear, first inspect
+    the repository and make a bounded assumption when safe. Ask only when continuing
+    would be unsafe, destructive, outside scope, or impossible without missing access.
+    Do not guess silently; document assumptions and validate them.
 
     ## Code Organization
 
@@ -56,20 +64,22 @@ Task tool (general-purpose):
 
     ## When You're in Over Your Head
 
-    It is always OK to stop and say "this is too hard for me." Bad work is worse than
-    no work. You will not be penalized for escalating.
+    It is OK to stop for a true blocker. Bad work is worse than no work, but routine
+    uncertainty is not a blocker: read the assigned context, make bounded assumptions,
+    validate locally, and keep going.
 
-    **STOP and escalate when:**
-    - The task requires architectural decisions with multiple valid approaches
-    - You need to understand code beyond what was provided and can't find clarity
-    - You feel uncertain about whether your approach is correct
+    **STOP and escalate only when:**
+    - The task requires architectural decisions with multiple valid approaches and no
+      safe precedent in the codebase
+    - Required credentials, services, tools, or files are unavailable
+    - Explicit requirements conflict and a bounded assumption would be unsafe
     - The task involves restructuring existing code in ways the plan didn't anticipate
-    - You've been reading file after file trying to understand the system without progress
+    - You've inspected the relevant files and still cannot identify a safe path forward
 
     **How to escalate:** Report back with status BLOCKED or NEEDS_CONTEXT. Describe
-    specifically what you're stuck on, what you've tried, and what kind of help you need.
-    The controller can provide more context, re-dispatch with a more capable model,
-    or break the task into smaller pieces.
+    specifically what you're stuck on, what you've tried, why a bounded assumption is
+    unsafe, and what kind of help you need. The controller can provide more context,
+    re-dispatch with a more capable model, or break the task into smaller pieces.
 
     ## Before Reporting Back: Self-Review
 
@@ -89,6 +99,7 @@ Task tool (general-purpose):
     - Did I avoid overbuilding (YAGNI)?
     - Did I only build what was requested?
     - Did I follow existing patterns in the codebase?
+    - Did I stay within the assigned scope and avoid forbidden paths?
 
     **Testing:**
     - Do tests actually verify behavior (not just mock behavior)?
@@ -101,13 +112,18 @@ Task tool (general-purpose):
 
     When done, report:
     - **Status:** DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT
+    - **Target:** working directory, branch, and HEAD/base SHA checked
     - What you implemented (or what you attempted, if blocked)
-    - What you tested and test results
-    - Files changed
+    - **Changed files:** exact files changed
+    - **Validation:** commands run, cwd, and pass/fail results
+    - **Tests:** tests added/updated and behavior covered, or none
+    - **Assumptions:** bounded assumptions made, or none
     - Self-review findings (if any)
     - Any issues or concerns
 
     Use DONE_WITH_CONCERNS if you completed the work but have doubts about correctness.
-    Use BLOCKED if you cannot complete the task. Use NEEDS_CONTEXT if you need
-    information that wasn't provided. Never silently produce work you're unsure about.
+    Use BLOCKED if you cannot complete the task safely. Use NEEDS_CONTEXT only when
+    necessary information cannot be inferred from provided context or repository
+    evidence. Never silently produce work you're unsure about; either validate the
+    assumption or report the true blocker.
 ```
