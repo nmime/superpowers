@@ -11,7 +11,7 @@ You delegate tasks to specialized agents with isolated context. By precisely cra
 
 When you have multiple unrelated failures (different test files, different subsystems, different bugs), investigating them sequentially wastes time. Each investigation is independent and can happen in parallel.
 
-**Core principle:** Dispatch one agent per independent problem domain. Let them work concurrently.
+**Core principle:** Dispatch one agent per independent problem domain. Let them work concurrently, maximize disjoint safe work, then gather and reduce the evidence into one validated result.
 
 ## When to Use
 
@@ -38,6 +38,7 @@ digraph when_to_use {
 - Multiple subsystems broken independently
 - Each problem can be understood without context from others
 - No shared state between investigations
+- Multiple plan tasks have disjoint file ownership and can be implemented or validated independently
 
 **Don't use when:**
 - Failures are related (fix one might fix others)
@@ -55,13 +56,22 @@ Group failures by what's broken:
 
 Each domain is independent - fixing tool approval doesn't affect abort tests.
 
+Before dispatch, define ownership boundaries:
+- Files or directories each agent may edit
+- Files or commands each agent may only read
+- Validation each agent must run
+- True blockers each agent must report instead of guessing
+- Integration evidence the parent needs back
+
 ### 2. Create Focused Agent Tasks
 
 Each agent gets:
 - **Specific scope:** One test file or subsystem
 - **Clear goal:** Make these tests pass
 - **Constraints:** Don't change other code
-- **Expected output:** Summary of what you found and fixed
+- **Autonomous instructions:** Continue through safe in-scope steps without human checkpoints; stop only for true blockers
+- **Validation evidence:** Commands run, pass/fail output, changed files, and remaining risks
+- **Expected output:** Summary of what you found and fixed, plus evidence suitable for integration
 
 ### 3. Dispatch in Parallel
 
@@ -73,13 +83,17 @@ Task("Fix tool-approval-race-conditions.test.ts failures")
 // All three run concurrently
 ```
 
+Dispatch every independent domain at once unless there is a real shared-state or ordering constraint. Do not serialize agents just to review between them. If one agent blocks, let the others continue and gather all results before reducing.
+
 ### 4. Review and Integrate
 
 When agents return:
 - Read each summary
-- Verify fixes don't conflict
-- Run full test suite
-- Integrate all changes
+- Gather changed files, validation commands, pass/fail evidence, blockers, and assumptions from every agent
+- Check ownership boundaries and verify fixes don't conflict
+- Reduce overlapping findings into one decision: accept, amend, rerun, or block
+- Run targeted validations for each changed area, then the broadest relevant suite/build available
+- Integrate all non-conflicting changes and report unresolved true blockers with evidence
 
 ## Agent Prompt Structure
 
@@ -87,6 +101,7 @@ Good agent prompts are:
 1. **Focused** - One clear problem domain
 2. **Self-contained** - All context needed to understand the problem
 3. **Specific about output** - What should the agent return?
+4. **Autonomous** - Exact safe continuation rules, validation evidence, and true-blocker criteria
 
 ```markdown
 Fix the 3 failing tests in src/agents/agent-tool-abort.test.ts:
@@ -105,8 +120,9 @@ These are timing/race condition issues. Your task:
    - Adjusting test expectations if testing changed behavior
 
 Do NOT just increase timeouts - find the real issue.
+Continue through safe in-scope fixes and rerun the targeted tests without asking for approval. Stop only if you need credentials, destructive actions, out-of-scope files, or a requirement decision that cannot be inferred.
 
-Return: Summary of what you found and what you fixed.
+Return: Summary of root cause, changed files, tests/commands run with pass/fail evidence, blockers if any, and remaining risks.
 ```
 
 ## Common Mistakes
@@ -121,7 +137,13 @@ Return: Summary of what you found and what you fixed.
 **✅ Constraints:** "Do NOT change production code" or "Fix tests only"
 
 **❌ Vague output:** "Fix it" - you don't know what changed
-**✅ Specific:** "Return summary of root cause and changes"
+**✅ Specific:** "Return summary of root cause, changed files, validation evidence, and blockers"
+
+**❌ Hidden dependency:** Two agents edit the same files without coordination
+**✅ Disjoint ownership:** "Agent 1 owns `src/abort/**`; Agent 2 owns `src/batch/**`; both may read shared helpers but must report before editing them"
+
+**❌ Serial dispatch:** Start one independent agent, wait, then start the next
+**✅ Parallel dispatch:** Start all independent agents first, gather all results, then reduce evidence
 
 ## When NOT to Use
 
@@ -169,8 +191,10 @@ Agent 3 → Fix tool-approval-race-conditions.test.ts
 After agents return:
 1. **Review each summary** - Understand what changed
 2. **Check for conflicts** - Did agents edit same code?
-3. **Run full suite** - Verify all fixes work together
-4. **Spot check** - Agents can make systematic errors
+3. **Gather evidence** - Commands, outputs, artifacts, changed files, assumptions, and true blockers
+4. **Reduce results** - Merge compatible findings, reject out-of-scope changes, identify missing validation
+5. **Run full suite** - Verify all fixes work together
+6. **Spot check** - Agents can make systematic errors
 
 ## Real-World Impact
 

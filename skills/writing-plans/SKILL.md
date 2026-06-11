@@ -7,9 +7,9 @@ description: Use when you have a spec or requirements for a multi-step task, bef
 
 ## Overview
 
-Write comprehensive implementation plans assuming the engineer has zero context for our codebase and questionable taste. Document everything they need to know: which files to touch for each task, code, testing, docs they might need to check, how to test it. Give them the whole plan as bite-sized tasks. DRY. YAGNI. TDD. Frequent commits.
+Write comprehensive implementation plans assuming the engineer has zero context for our codebase and questionable taste. Document everything they need to know: which files to touch for each task, code, testing, docs they might need to check, how to test it, and exactly how to keep moving autonomously. Give them the whole plan as bite-sized tasks. DRY. YAGNI. TDD. Frequent commits.
 
-Assume they are a skilled developer, but know almost nothing about our toolset or problem domain. Assume they don't know good test design very well.
+Assume they are a skilled developer, but know almost nothing about our toolset or problem domain. Assume they don't know good test design very well. Also assume they may be an autonomous worker executing without a human available for intermediate decisions, so every task needs explicit ownership, safe next steps, validation evidence, and true-blocker criteria.
 
 **Announce at start:** "I'm using the writing-plans skill to create the implementation plan."
 
@@ -22,6 +22,8 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 
 If the spec covers multiple independent subsystems, it should have been broken into sub-project specs during brainstorming. If it wasn't, suggest breaking this into separate plans — one per subsystem. Each plan should produce working, testable software on its own.
 
+If you can safely continue planning without an answer, do so. Capture assumptions in the plan and add validation steps that prove or disprove them. Stop for clarification only when a **true blocker** prevents a correct plan: mutually exclusive requirements, missing required credentials/data, an unsafe/destructive action, or an unknowable business decision that would change the implementation target.
+
 ## File Structure
 
 Before defining tasks, map out which files will be created or modified and what each one is responsible for. This is where decomposition decisions get locked in.
@@ -32,6 +34,18 @@ Before defining tasks, map out which files will be created or modified and what 
 - In existing codebases, follow established patterns. If the codebase uses large files, don't unilaterally restructure - but if a file you're modifying has grown unwieldy, including a split in the plan is reasonable.
 
 This structure informs the task decomposition. Each task should produce self-contained changes that make sense independently.
+
+## Autonomous Execution Requirements
+
+Plans must be executable without human checkpoints between steps. Before writing tasks, decide and document:
+
+- **Ownership:** which agent/worker owns each task or file slice, including any disjoint parallel work and the files each worker may edit.
+- **Autonomous sequence:** exact commands and decision rules for continuing after each step, including safe fallback steps when a command fails.
+- **Validation evidence:** the specific test, lint, typecheck, build, smoke test, diff, or log output that proves each requirement is done.
+- **Blockers:** what counts as a true blocker, what evidence proves it, and the closest safe validation the worker should run before reporting it.
+- **Integration:** how completed work is gathered, reviewed, reduced into a final result, and checked for conflicts.
+
+Do not write steps that say "ask the user", "wait for approval", or "confirm before continuing" unless the plan has reached a true blocker or safety gate. Prefer "continue with the documented safe default, record the assumption, and validate it".
 
 ## Bite-Sized Task Granularity
 
@@ -56,6 +70,14 @@ This structure informs the task decomposition. Each task should produce self-con
 **Architecture:** [2-3 sentences about approach]
 
 **Tech Stack:** [Key technologies/libraries]
+
+**Ownership:** [Who owns each task/file slice; note any disjoint parallel work and integration owner]
+
+**Autonomous Execution:** [How the implementer proceeds without human checkpoints; include safe defaults and when to continue]
+
+**Validation Evidence:** [Commands, test names, expected outputs, artifacts, and final proof required]
+
+**True Blockers:** [Exact conditions that require stopping, evidence to collect, and closest safe validation to run first]
 
 ---
 ```
@@ -82,6 +104,7 @@ def test_specific_behavior():
 
 Run: `pytest tests/path/test.py::test_name -v`
 Expected: FAIL with "function not defined"
+If it fails differently, inspect the error, update the test only if the expectation is wrong for this codebase, and continue when the next safe step is still clear. Stop only for a true blocker.
 
 - [ ] **Step 3: Write minimal implementation**
 
@@ -94,6 +117,7 @@ def function(input):
 
 Run: `pytest tests/path/test.py::test_name -v`
 Expected: PASS
+Record validation evidence: passing command, relevant output lines, or the exact failure if it exposes a true blocker.
 
 - [ ] **Step 5: Commit**
 
@@ -101,6 +125,10 @@ Expected: PASS
 git add tests/path/test.py src/path/file.py
 git commit -m "feat: add specific feature"
 ```
+
+- [ ] **Step 6: Update task evidence**
+
+Record: changed files, tests run, PASS/FAIL result, remaining risks, and whether any blocker criteria were met.
 ````
 
 ## No Placeholders
@@ -112,11 +140,14 @@ Every step must contain the actual content an engineer needs. These are **plan f
 - "Similar to Task N" (repeat the code — the engineer may be reading tasks out of order)
 - Steps that describe what to do without showing how (code blocks required for code steps)
 - References to types, functions, or methods not defined in any task
+- Human checkpoints such as "ask before continuing" when a safe autonomous next step exists
+- Missing ownership, validation evidence, or true-blocker criteria
 
 ## Remember
 - Exact file paths always
 - Complete code in every step — if a step changes code, show the code
 - Exact commands with expected output
+- Exact autonomous continuation rules: what to do next, what evidence to collect, and when a failure is truly blocking
 - DRY, YAGNI, TDD, frequent commits
 
 ## Self-Review
@@ -129,24 +160,28 @@ After writing the complete plan, look at the spec with fresh eyes and check the 
 
 **3. Type consistency:** Do the types, method signatures, and property names you used in later tasks match what you defined in earlier tasks? A function called `clearLayers()` in Task 3 but `clearFullLayers()` in Task 7 is a bug.
 
+**4. Autonomy check:** Does every task say who owns it, the exact safe next step, the validation evidence to capture, and the true-blocker conditions? Remove unnecessary human checkpoints.
+
 If you find issues, fix them inline. No need to re-review — just fix and move on. If you find a spec requirement with no task, add the task.
 
 ## Execution Handoff
 
-After saving the plan, offer execution choice:
+After saving the plan, proceed according to the user's requested scope without adding a human checkpoint:
 
-**"Plan complete and saved to `docs/superpowers/plans/<filename>.md`. Two execution options:**
+- If the user asked only for a plan, report the saved path and summarize autonomous execution/validation requirements.
+- If the user asked for implementation or the next step is obvious, start execution using the best available execution skill.
+- If subagents are available and tasks are independent, prefer subagent-driven development; otherwise execute inline with executing-plans.
+- If a true blocker exists, report the blocker, evidence collected, and the closest safe validation already run.
 
-**1. Subagent-Driven (recommended)** - I dispatch a fresh subagent per task, review between tasks, fast iteration
+**Autonomous completion message:**
 
-**2. Inline Execution** - Execute tasks in this session using executing-plans, batch execution with checkpoints
-
-**Which approach?"**
+**"Plan complete and saved to `docs/superpowers/plans/<filename>.md`. It includes ownership, autonomous execution steps, validation evidence, and true-blocker criteria. [If implementation was requested: I am proceeding with <subagent-driven-development|executing-plans> now.]"**
 
 **If Subagent-Driven chosen:**
 - **REQUIRED SUB-SKILL:** Use superpowers:subagent-driven-development
 - Fresh subagent per task + two-stage review
+- Dispatch independent tasks in parallel, gather each worker's evidence, reduce the results, and run final integration validation.
 
 **If Inline Execution chosen:**
 - **REQUIRED SUB-SKILL:** Use superpowers:executing-plans
-- Batch execution with checkpoints for review
+- Execute safe steps continuously; checkpoint only at true blockers or required safety gates.
