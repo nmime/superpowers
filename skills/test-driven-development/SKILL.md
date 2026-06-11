@@ -21,12 +21,12 @@ Write the test first. Watch it fail. Write minimal code to pass.
 - Refactoring
 - Behavior changes
 
-**Exceptions (ask your human partner):**
+**Exceptions (require explicit instruction or a true blocker):**
 - Throwaway prototypes
 - Generated code
 - Configuration files
 
-Thinking "skip TDD just this once"? Stop. That's rationalization.
+Thinking "skip TDD just this once"? Stop. That's rationalization. Proceed with TDD unless the user explicitly instructed an exception or you have a true blocker that requires a decision.
 
 ## The Iron Law
 
@@ -43,6 +43,14 @@ Write code before the test? Delete it. Start over.
 - Delete means delete
 
 Implement fresh from tests. Period.
+
+## Autonomous Execution Mandate
+
+Run the TDD cycle autonomously. Do not wait for routine instruction to write the next failing test, run it, read the failure, implement the smallest change, rerun tests, refactor while green, or collect verification evidence. Continue red-green-refactor until the requested behavior is covered and verified.
+
+Ask your human partner only for true blockers or destructive choices: missing requirements that make the expected behavior unknowable, unavailable dependencies or credentials, permission to discard or rewrite work outside the assigned scope, or actions that risk data loss/production impact. When blocked, report the exact test/code state, command output, and the smallest decision needed.
+
+Never claim implementation is complete until you have evidence for RED, GREEN, and final verification.
 
 ## Red-Green-Refactor
 
@@ -259,7 +267,7 @@ Tests-first force edge case discovery before implementing. Tests-after verify yo
 |--------|---------|
 | "Too simple to test" | Simple code breaks. Test takes 30 seconds. |
 | "I'll test after" | Tests passing immediately prove nothing. |
-| "Tests after achieve same goals" | Tests-after = "what does this do?" Tests-first = "what should this do?" |
+| "Tests after achieve same goals" | Tests-after = "what does this do?" Tests-first = "What should this do?" |
 | "Already manually tested" | Ad-hoc ≠ systematic. No record, can't re-run. |
 | "Deleting X hours is wasteful" | Sunk cost fallacy. Keeping unverified code is technical debt. |
 | "Keep as reference, write tests first" | You'll adapt it. That's testing after. Delete means delete. |
@@ -343,7 +351,7 @@ Can't check all boxes? You skipped TDD. Start over.
 
 | Problem | Solution |
 |---------|----------|
-| Don't know how to test | Write wished-for API. Write assertion first. Ask your human partner. |
+| Don't know how to test | Write wished-for API. Write assertion first. Search existing tests and test helpers. Ask only when expected behavior or safe test seams remain genuinely blocked. |
 | Test too complicated | Design too complicated. Simplify interface. |
 | Must mock everything | Code too coupled. Use dependency injection. |
 | Test setup huge | Extract helpers. Still complex? Simplify design. |
@@ -368,4 +376,4 @@ Production code → test exists and failed first
 Otherwise → not TDD
 ```
 
-No exceptions without your human partner's permission.
+No exceptions without explicit instruction or a true blocker/destructive choice.

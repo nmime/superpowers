@@ -21,6 +21,14 @@ NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST
 
 If you haven't completed Phase 1, you cannot propose fixes.
 
+## Autonomous Execution Mandate
+
+Work through the debugging process autonomously. Do not pause for routine permission to read files, run non-destructive diagnostics, form hypotheses, add temporary instrumentation, execute experiments, create regression tests, or verify fixes. Proceed through each phase and collect evidence before reporting status.
+
+Ask your human partner only when you hit a true blocker or a choice with destructive/irreversible consequences, such as missing credentials, unavailable systems, data loss risk, production-impacting actions, or an architectural pivot after repeated failed fixes. When blocked, report the exact evidence gathered, what you tried, and the specific decision or access needed.
+
+No completion claim is allowed until root cause evidence, fix evidence, and verification output have been collected and read.
+
 ## When to Use
 
 Use for ANY technical issue:
@@ -164,8 +172,8 @@ You MUST complete each phase before proceeding to the next.
 4. **When You Don't Know**
    - Say "I don't understand X"
    - Don't pretend to know
-   - Ask for help
-   - Research more
+   - Research more and design the next evidence-gathering experiment
+   - Ask for help only after you have exhausted safe, non-destructive investigation paths and can state the precise blocker
 
 ### Phase 4: Implementation
 
@@ -194,7 +202,7 @@ You MUST complete each phase before proceeding to the next.
    - Count: How many fixes have you tried?
    - If < 3: Return to Phase 1, re-analyze with new information
    - **If ≥ 3: STOP and question the architecture (step 5 below)**
-   - DON'T attempt Fix #4 without architectural discussion
+   - DON'T attempt Fix #4 without architectural discussion unless safe diagnostic evidence still needs to be gathered
 
 5. **If 3+ Fixes Failed: Question Architecture**
 
@@ -208,7 +216,7 @@ You MUST complete each phase before proceeding to the next.
    - Are we "sticking with it through sheer inertia"?
    - Should we refactor architecture vs. continue fixing symptoms?
 
-   **Discuss with your human partner before attempting more fixes**
+   **Escalate before attempting more fixes:** Present the evidence from all failed attempts, the architectural concern, and the concrete options. Continue autonomously only for safe diagnostic work; ask your human partner when the next step requires an architectural decision, destructive migration, or broad refactor outside the assigned scope.
 
    This is NOT a failed hypothesis - this is a wrong architecture.
 
