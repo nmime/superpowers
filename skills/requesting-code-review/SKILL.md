@@ -7,6 +7,8 @@ description: Use when completing tasks, implementing major features, or before m
 
 Dispatch a code reviewer subagent to catch issues before they cascade. The reviewer gets precisely crafted context for evaluation — never your session's history. This keeps the reviewer focused on the work product, not your thought process, and preserves your own context for continued work.
 
+Reviews are autonomous by default. Give the reviewer enough boundaries to work safely, then expect them to inspect the diff, touched files, nearby code, and relevant tests on their own. They should ask questions only when a true blocker prevents a defensible review.
+
 **Core principle:** Review early, review often.
 
 ## When to Request Review
@@ -40,10 +42,45 @@ Use Task tool with `general-purpose` type, fill template at `code-reviewer.md`
 - `{HEAD_SHA}` - Ending commit
 
 **3. Act on feedback:**
+- Verify each finding against the code before changing anything
 - Fix Critical issues immediately
 - Fix Important issues before proceeding
 - Note Minor issues for later
-- Push back if reviewer is wrong (with reasoning)
+- Push back if reviewer is wrong (with code/test evidence)
+- Ask your human partner only for true blockers or risk decisions you cannot safely resolve
+
+## Autonomous Review Expectations
+
+The reviewer should not need routine clarification. Your prompt should make clear that they own the investigation inside the supplied repository and git range.
+
+**Reviewer must independently:**
+- Run `git diff --stat` and `git diff` for the supplied range
+- Read changed files plus surrounding code needed to understand behavior
+- Inspect relevant tests, fixtures, scripts, and CI/package commands when available
+- Verify claims against code, tests, documentation, or command output before reporting them
+- Identify actionable findings with file:line evidence and concrete impact
+- Distinguish confirmed issues from unverified risks or optional improvements
+
+**Reviewer may ask only for true blockers:**
+- Required files, SHAs, or requirements are missing or inaccessible
+- The repository cannot be inspected after a real attempt
+- Validation requires credentials, external systems, destructive actions, or product decisions outside the prompt
+- A finding depends on business intent that cannot be inferred from requirements or code
+
+**Reviewer should not ask for:**
+- A summary of the diff they can inspect
+- File contents available in the repository
+- Permission to run safe read-only inspection commands
+- Clarification before making reasonable assumptions and stating them
+
+## Autonomous Parent Handling
+
+After review, keep ownership of the work:
+- Reproduce or inspect each finding before accepting it
+- Apply straightforward fixes without asking for permission
+- Re-run targeted validation for each fix and broader relevant checks before proceeding
+- Route architectural, product, security, data-loss, or scope-risk decisions to your human partner only when evidence shows the decision cannot be made safely from the repo and requirements
+- Record rejected findings with the code/test evidence that disproves them
 
 ## Example
 
@@ -98,6 +135,6 @@ You: [Fix progress indicators]
 **If reviewer wrong:**
 - Push back with technical reasoning
 - Show code/tests that prove it works
-- Request clarification
+- Request clarification only for true blockers or risk decisions
 
 See template at: requesting-code-review/code-reviewer.md
