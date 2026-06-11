@@ -40,3 +40,9 @@ Copilot CLI supports persistent async shell sessions, which have no direct Claud
 | `sql` | Query the session's SQLite database (todos, metadata) |
 | `fetch_copilot_cli_documentation` | Look up Copilot CLI documentation |
 | GitHub MCP tools (`github-mcp-server-*`) | Native GitHub API access (issues, PRs, code search) |
+
+## Autonomous skill use in Copilot CLI
+
+Use the `skill` tool before any response or action whenever the bootstrap rule says a skill might apply, including before clarifying questions, `bash`, `view`, `grep`, or `task` calls. After a skill completes a phase, immediately check for and invoke the next applicable skill so workflows continue automatically instead of waiting for a user prompt.
+
+If a skill references an unmapped Claude Code tool, infer the Copilot equivalent by capability from tool descriptions and schemas. Start with safe read-only/list operations when validating the mapping. Ask the user only when the missing mapping is a true blocker to safe progress.
