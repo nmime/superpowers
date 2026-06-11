@@ -2,6 +2,10 @@
 
 ## v5.1.0 (2026-04-30)
 
+### Documentation
+
+- **Autonomous prompt behavior documented** — README, contributor guidance, testing docs, OpenCode docs, and the PR template now state that supported integrations should load the bootstrap at session start, invoke relevant skills autonomously, continue across brainstorming/planning/implementation phases after human approval gates, and provide transcript plus validation evidence for behavior-shaping changes.
+
 ### Removals
 
 - **Legacy slash commands removed** — `/brainstorm`, `/execute-plan`, and `/write-plan` are gone. They were deprecated stubs that did nothing but tell the user to invoke the corresponding skill. Invoke `superpowers:brainstorming`, `superpowers:executing-plans`, and `superpowers:writing-plans` directly instead. (#1188)

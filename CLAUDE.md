@@ -75,11 +75,23 @@ If your PR adds support for a new harness (IDE, CLI tool, agent runner), you MUS
 
 A real integration loads the `using-superpowers` bootstrap at session start. The bootstrap is what causes skills to auto-trigger at the right moments. Without it, the skills are dead weight — present on disk but never invoked.
 
+The agent must not require users to name skills manually at each step. After the bootstrap is loaded, the agent is expected to check for relevant skills before acting, invoke the right skill autonomously, and continue from one workflow phase to the next once the required human checkpoint is satisfied. A harness that can list skills but cannot make the agent use them at the right time is not integrated yet.
+
 **The acceptance test.** Open a clean session in the new harness and send exactly this user message:
 
 > Let's make a react todo list
 
 A working integration auto-triggers the `brainstorming` skill before any code is written. Paste the complete transcript in the PR.
+
+For workflow-continuation evidence, keep the same clean session going after the initial brainstorming trigger:
+
+1. Let the agent ask clarifying questions and present a design.
+2. Approve the design and tell it to continue.
+3. Verify it invokes `writing-plans` without being told the skill name.
+4. Approve the plan and tell it to continue.
+5. Verify it invokes `subagent-driven-development` on harnesses with subagents, or `executing-plans` on harnesses without subagent support.
+
+The transcript must show the relevant skill invocations, the human approval gates, and the agent's validation output. Do not replace transcript evidence with a summary.
 
 **These are not real integrations and will be closed:**
 
@@ -98,6 +110,16 @@ Skills are not prose — they are code that shapes agent behavior. If you modify
 - Run adversarial pressure testing across multiple sessions
 - Show before/after eval results in your PR
 - Do not modify carefully-tuned content (Red Flags tables, rationalization lists, "human partner" language) without evidence the change is an improvement
+
+The same standard applies to other behavior-shaping content such as bootstrap instructions, hook output, harness context files, and configuration that changes when or how skills are invoked. Documentation-only edits can be reviewed as documentation. But if a change is intended to alter agent behavior, the PR must include acceptance evidence: the prompt used, clean-session transcript excerpts, observed skill invocations, before/after outcomes, and validation commands or logs.
+
+For autonomous prompt behavior, evidence should cover at least:
+
+- Bootstrap loaded at session start
+- Relevant skill invoked before action, including before clarifying questions when applicable
+- Continuation from brainstorming to planning to implementation after human approval gates
+- Validation evidence for claims of success or behavior improvement
+- Negative or adversarial cases showing the agent does not skip required gates
 
 ## Understand the Project Before Contributing
 

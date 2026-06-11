@@ -301,3 +301,56 @@ Session transcripts are JSONL (JSON Lines) files where each line is a JSON objec
 ```
 
 The `agentId` field links to subagent sessions, and the `usage` field contains token usage for that specific subagent invocation.
+
+## Testing Autonomous Prompt Behavior
+
+Changes to bootstrap instructions, hook output, harness context files, or skill wording can change agent behavior even when they look like documentation. Treat those changes as behavior-shaping changes and validate them with transcript evidence.
+
+### Acceptance Evidence
+
+For harness integrations and autonomous prompt changes, collect evidence from a clean session that shows:
+
+1. **Bootstrap loaded** at session start, before the first user task is handled.
+2. **Skill invocation happened before action.** The agent invoked the relevant skill tool before answering, asking clarifying questions, writing files, or running implementation commands.
+3. **Workflow phase continuation.** After the human approves the design, the agent invokes `writing-plans` without being told the skill name. After the human approves the plan, it invokes `subagent-driven-development` on harnesses with subagent support or `executing-plans` on harnesses without subagent support.
+4. **Required gates were not skipped.** Brainstorming still waits for design approval, planning still waits for plan approval, and implementation does not begin early.
+5. **Claims are validated.** Any statement that the workflow succeeded is backed by command output, transcript entries, test results, or logs.
+
+### Clean-Session Prompt
+
+Use this prompt for new harness support and for changes that claim to improve autonomous skill invocation:
+
+```text
+Let's make a react todo list
+```
+
+Expected behavior: the agent auto-triggers `brainstorming` before writing code. Continue the same session through design approval and plan approval to verify the next skills are invoked autonomously.
+
+### Transcript Checks
+
+Prefer checking structured session logs over user-facing prose. Depending on the harness, look for entries equivalent to:
+
+```text
+Skill invoked: using-superpowers or bootstrap context loaded
+Skill invoked: brainstorming
+Human approval: design approved
+Skill invoked: writing-plans
+Human approval: plan approved
+Skill invoked: subagent-driven-development or executing-plans
+Validation output: tests, checks, or explicit blocker logs
+```
+
+If the harness cannot expose structured logs, paste the complete transcript and clearly mark the lines that prove each checkpoint.
+
+### Before/After Evaluation
+
+For behavior-shaping changes, record:
+
+- The exact initial prompt and any follow-up approval messages
+- Harness, model, plugin version, and relevant configuration
+- Number of clean sessions run before and after the change
+- Whether each session invoked the expected skills in order
+- Whether any session skipped a required human gate
+- Validation commands or logs used to verify the resulting work
+
+Summaries such as "it worked" or "the agent followed the workflow" are not sufficient without transcript or log evidence.

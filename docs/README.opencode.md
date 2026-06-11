@@ -17,6 +17,8 @@ registers all skills.
 
 Verify by asking: "Tell me about your superpowers"
 
+For a behavior check, start a clean OpenCode session and ask: "Let's make a react todo list". Superpowers should load its bootstrap context automatically and invoke the `brainstorming` skill before writing code. After you approve the design, the same session should continue by invoking `writing-plans` without you naming the skill; after you approve the plan, it should continue with OpenCode's non-subagent fallback workflow.
+
 OpenCode uses its own plugin install. If you also use Claude Code, Codex, or
 another harness, install Superpowers separately for each one.
 
@@ -149,6 +151,7 @@ Then use the installed package path in `opencode.json`:
 
 1. Check OpenCode version supports `experimental.chat.system.transform` hook
 2. Restart OpenCode after config changes
+3. In a clean session, ask "Let's make a react todo list" and confirm the agent invokes `brainstorming` before implementation. If it only lists available skills or waits for you to name a skill, the bootstrap is not shaping behavior correctly.
 
 ## Getting Help
 

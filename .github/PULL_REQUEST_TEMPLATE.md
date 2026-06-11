@@ -86,6 +86,14 @@ of human involvement will be closed without review.
      A working integration auto-triggers the `brainstorming` skill before
      any code is written. Paste the complete transcript below.
 
+     Also show continuation in the same clean session: after you approve the
+     design, the agent should invoke `writing-plans` without being told the
+     skill name; after you approve the plan, it should invoke
+     `subagent-driven-development` on harnesses with subagents or
+     `executing-plans` on harnesses without subagent support. The transcript
+     must include the approval gates, skill invocations, and validation
+     output that supports any claim that the workflow succeeded.
+
      These are NOT real integrations and PRs that ship them will be closed:
 
      - Manually copying skill files into the harness
@@ -111,6 +119,11 @@ paste the complete transcript here
   the session that led to this change?
 - How many eval sessions did you run AFTER making the change?
 - How did outcomes change compared to before the change?
+- If this changes autonomous prompt behavior, what evidence shows the agent
+  invoked the right skill before acting and continued across workflow phases
+  after human approval gates?
+- What validation output, transcript excerpts, or logs support the behavior
+  claims in this PR?
 
 <!-- "It works" is not evaluation. Describe the before/after difference
      you observed across multiple sessions. -->
