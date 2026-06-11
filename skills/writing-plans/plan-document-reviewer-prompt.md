@@ -2,7 +2,7 @@
 
 Use this template when dispatching a plan document reviewer subagent.
 
-**Purpose:** Verify the plan is complete, matches the spec, and has proper task decomposition.
+**Purpose:** Verify the plan is complete, autonomous, matches the spec, and has proper task decomposition.
 
 **Dispatch after:** The complete plan is written.
 
@@ -10,7 +10,7 @@ Use this template when dispatching a plan document reviewer subagent.
 Task tool (general-purpose):
   description: "Review plan document"
   prompt: |
-    You are a plan document reviewer. Verify this plan is complete and ready for implementation.
+    You are a plan document reviewer. Verify this plan is complete and ready for autonomous implementation.
 
     **Plan to review:** [PLAN_FILE_PATH]
     **Spec for reference:** [SPEC_FILE_PATH]
@@ -23,6 +23,8 @@ Task tool (general-purpose):
     | Spec Alignment | Plan covers spec requirements, no major scope creep |
     | Task Decomposition | Tasks have clear boundaries, steps are actionable |
     | Buildability | Could an engineer follow this plan without getting stuck? |
+    | Autonomy | Plan includes ownership, exact autonomous execution steps, safe continuation rules, validation evidence, and true blocker criteria |
+    | Parallel Integration | Independent work is disjoint, gathered, reduced, conflict-checked, and validated together |
 
     ## Calibration
 
@@ -31,7 +33,8 @@ Task tool (general-purpose):
     Minor wording, stylistic preferences, and "nice to have" suggestions are not.
 
     Approve unless there are serious gaps — missing requirements from the spec,
-    contradictory steps, placeholder content, or tasks so vague they can't be acted on.
+    contradictory steps, placeholder content, missing ownership/validation evidence,
+    unnecessary human checkpoints, absent true blocker criteria, or tasks so vague they can't be acted on.
 
     ## Output Format
 
