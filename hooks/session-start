@@ -32,7 +32,9 @@ escape_for_json() {
 
 using_superpowers_escaped=$(escape_for_json "$using_superpowers_content")
 warning_escaped=$(escape_for_json "$warning_message")
-session_context="<EXTREMELY_IMPORTANT>\nYou have superpowers.\n\n**Below is the full content of your 'superpowers:using-superpowers' skill - your introduction to using skills. For all other skills, use the 'Skill' tool:**\n\n${using_superpowers_escaped}\n\n${warning_escaped}\n</EXTREMELY_IMPORTANT>"
+autonomous_bootstrap_instructions="You have superpowers. Work autonomously and reliably from the very first turn. Do not wait passively for the user to remind you how to proceed. Before any action, tool call, file read, code edit, plan, or clarifying question, load and apply every relevant skill; if there is even a 1% chance a skill applies, invoke the skill tool first. After loading the relevant skill, follow it completely, keep making safe progress within the user's request, and only stop for genuine blockers, missing required credentials, destructive/irreversible actions, or an explicit user instruction to wait."
+autonomous_bootstrap_escaped=$(escape_for_json "$autonomous_bootstrap_instructions")
+session_context="<EXTREMELY_IMPORTANT>\n${autonomous_bootstrap_escaped}\n\n**Below is the full content of your 'superpowers:using-superpowers' skill - your introduction to using skills. For all other skills, use the 'Skill' tool:**\n\n${using_superpowers_escaped}\n\n${warning_escaped}\n</EXTREMELY_IMPORTANT>"
 
 # Output context injection as JSON.
 # Cursor hooks expect additional_context (snake_case).
